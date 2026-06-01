@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout source code
@@ -15,21 +15,21 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install Compiler
+    - name: Install Tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi build-essential cmake
+        sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential cmake
 
-    - name: Setup Pico SDK
+    - name: Setup Legacy Pico SDK
       run: |
-        git clone --depth 1 --branch master https://github.com/raspberrypi/pico-sdk.git
+        # Скачиваем строго стабильную старую версию SDK 1.5.1, с которой совместим PicoFly
+        git clone --depth 1 --branch 1.5.1 https://github.com/raspberrypi/pico-sdk.git
         cd pico-sdk
         git submodule update --init --depth 1
         echo "PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk" >> $GITHUB_ENV
 
     - name: Build Project
       run: |
-        # Ищем, в какой именно папке лежит CMakeLists.txt, и собираем прямо там
         TARGET_DIR=$(find . -name "CMakeLists.txt" -printf '%h\n' | head -n 1)
         echo "Found CMakeLists in $TARGET_DIR"
         cd "$TARGET_DIR"
