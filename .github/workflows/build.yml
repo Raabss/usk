@@ -3,8 +3,6 @@ name: Build Firmware
 on:
   push:
     branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -17,10 +15,10 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install ARM GCC Compiler
+    - name: Install Compiler
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential cmake
+        sudo apt-get install -y gcc-arm-none-eabi build-essential cmake
 
     - name: Setup Pico SDK
       run: |
@@ -31,7 +29,11 @@ jobs:
 
     - name: Build Project
       run: |
-        mkdir build
+        # Ищем, в какой именно папке лежит CMakeLists.txt, и собираем прямо там
+        TARGET_DIR=$(find . -name "CMakeLists.txt" -printf '%h\n' | head -n 1)
+        echo "Found CMakeLists in $TARGET_DIR"
+        cd "$TARGET_DIR"
+        mkdir -p build
         cd build
         cmake ..
         make -j$(nproc)
@@ -41,5 +43,5 @@ jobs:
       with:
         name: PicoFly-Firmware
         path: |
-          build/*.uf2
-          build/*.bin
+          **/build/*.uf2
+          **/build/*.bin
