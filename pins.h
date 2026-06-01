@@ -32,6 +32,6 @@
 #define PIN_DAT 29
 #define PIN_CMD 28
 #define PIN_CLK 27
-#define PIN_RST 26
+#define PIN_RST 14
 
 #define PIN_TEMP_PICO 29
